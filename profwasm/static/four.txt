@@ -1,0 +1,17 @@
+WebAssembly can be leveraged to build applications for the cloud, taking advantage of its portability, security, and performance characteristics.
+
+<p><b>Advantages:</b><p>
+
+<b>Portability:</b> WebAssembly modules can run on various cloud platforms and environments, making it easier to deploy and scale applications across different cloud providers.
+<b>Security:</b> WebAssembly's sandboxed execution model and memory isolation provide enhanced security compared to traditional native code, reducing the attack surface for cloud-based applications.
+<b>Performance:</b> The near-native performance of WebAssembly makes it suitable for computationally intensive tasks often required in cloud environments, such as data processing, scientific computing, or machine learning.
+<b>Modularity:</b> WebAssembly modules can be easily integrated into existing cloud-native architectures, allowing for a mix of technologies and programming languages within the same application.
+
+<p><b>Documentation:</b><p>
+<a href="https://cncf.io/webassembly/">Cloud Native WebAssembly</a></p>
+<a href="https://www.secondstate.io/articles/webassembly-in-the-cloud/">WebAssembly in the Cloud (blog post)</a></p>
+
+<p><b>Expert opinion (Tyler McMullen, CTO at Fastly):</b><p>
+<blockquote>"WebAssembly has the potential to revolutionize how we build and deploy cloud applications. Its combination of portability, security, and performance makes it an attractive choice for building scalable, secure, and efficient cloud-native services." (<a href="https://www.fastly.com/blog/webassembly-cloud-native-computing">Source</a>)</blockquote>
+
+By leveraging WebAssembly in the cloud, developers can build applications that are portable across different cloud providers, benefit from enhanced security through isolated execution, and achieve high performance for computationally intensive workloads, all while maintaining the ability to mix and match different programming languages within the same application.

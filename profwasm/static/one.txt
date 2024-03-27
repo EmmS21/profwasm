@@ -1,0 +1,27 @@
+Containers and virtual machines (VMs) are two different approaches to virtualizing computing resources in cloud environments. Both aim to provide isolated environments for running applications, but they differ in their underlying implementation and the level of isolation they offer.
+<br>
+<p><b>Containers:</b><p>
+Containers are lightweight, standalone executable packages that include an application and its dependencies. They share the host operating system's kernel, which provides a level of isolation through namespaces and cgroups.
+
+<p><b>Namespaces:</b><p> Namespaces isolate system resources like process IDs, network interfaces, and file systems. This way, processes running in different containers have their own isolated view of these resources, preventing conflicts and improving security.
+<p><b>Example:</b><p> Two containers running different web servers can have their own isolated process IDs, preventing conflicts and ensuring smooth operation.
+<p><b>cgroups:</b><p> cgroups (control groups) limit and control the resource usage of processes, such as CPU, memory, and I/O bandwidth, preventing a single container from monopolizing host resources.
+<p><b>Example:</b><p> If one container starts consuming excessive CPU, cgroups can limit its usage, ensuring other containers continue running smoothly.
+
+<p><b>Namespaces:</b> <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html">https://man7.org/linux/man-pages/man7/namespaces.7.html</a></p>
+<p><b>cgroups:</b> <a href="https://man7.org/linux/man-pages/man7/cgroups.7.html">https://man7.org/linux/man-pages/man7/cgroups.7.html</a></p>
+<br><br>
+<b>Limitations:</b>
+Containers share the host kernel, so a kernel vulnerability could potentially affect all containers.
+Resource isolation is not as strong as with VMs, as containers share the host kernel.
+<p><b>VMs:</b><p>
+Virtual machines are complete, isolated guest operating systems running on top of a hypervisor, which manages and virtualizes the underlying hardware resources.
+<br><br>
+
+<a href="https://en.wikipedia.org/wiki/Hypervisor">Hypervisor Documentation</a></p>
+
+VMs provide stronger isolation than containers, as each VM has its own kernel and operating system. However, this also means that VMs are more resource-intensive and less portable than containers.
+
+<p><b>Limitations:</b><p>
+VMs have higher overhead due to the need for a complete guest operating system.
+Launching and managing VMs can be slower than containers.

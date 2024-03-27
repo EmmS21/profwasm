@@ -1,0 +1,22 @@
+WebAssembly (Wasm) is a low-level, portable binary instruction format designed to be a compilation target for programming languages. It is designed to run alongside JavaScript in web browsers and provides a way to run code written in languages like C, C++, and Rust on the web with near-native performance.
+
+<p><b>Documentation:</b><p>
+
+<a href="https://webassembly.org/">WebAssembly</a></p>
+<a href="https://developer.mozilla.org/en-US/docs/WebAssembly">Mozilla Developer Network</a></p>
+
+WebAssembly is considered a low-level programming language because it operates closer to the hardware level, providing a compact binary format that can be efficiently executed by the browser or other runtime environments. This low-level nature allows WebAssembly to achieve performance that is often faster than traditional interpreted languages like JavaScript or Python.
+
+<p><b>Expert opinion (Haseeb Qureshi, experienced software engineer):</b><p>
+"WebAssembly is a game-changer for the web. It allows developers to write high-performance code in languages like C++, Rust, and others, and run that code in the browser at near-native speeds." (Source: https://haseebq.com/what-is-webassembly/)
+
+<p><b>Simple example:</b><p>
+Imagine you have a complex mathematical calculation or a graphics rendering task that needs to be performed in a web application. With traditional JavaScript, these computationally intensive tasks might be slow or inefficient. However, by using WebAssembly, you can write the performance-critical parts of your application in a language like C++ or Rust, compile it to WebAssembly, and run it in the browser at near-native speeds, providing a smoother and more responsive user experience.
+
+<p><b>WebAssembly System Interface (WASI):</b><p>
+WASI is a set of interfaces that define how WebAssembly modules can interact with the underlying operating system. It provides a standard way for WebAssembly programs to access system resources like files, network, and other I/O operations, enabling the development of portable and secure applications.
+
+<a href="https://wasi.dev/">WASI</a></p>
+<a href="https://bytecodealliance.org/articles/understanding-wasi">WASI overview</a></p>
+
+WASI's significance lies in its ability to extend WebAssembly beyond the web browser, enabling the development of standalone applications, command-line tools, and even cloud-native services. It allows WebAssembly modules to be deployed and run in various environments, from servers to edge devices, while maintaining portability and security.

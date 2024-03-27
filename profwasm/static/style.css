@@ -1,0 +1,71 @@
+:root {
+    --black: #041a2f; 
+    --white: #ffffff;
+    --primary: #add8e6; 
+}
+
+html, body {
+    height: 100vh; 
+    margin: 0;
+    padding: 0; 
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    flex-direction: column; 
+}
+
+h1 {
+    text-align: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.container {
+    width: 50%; 
+    max-height: 50%;
+    background-color: white;
+    border-radius: 50px;
+    padding: 20px 40px 10px; 
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+    overflow-y: auto; 
+}
+
+.container button {
+    background-color: var(--black);
+    color: var(--white); 
+    border: none; 
+    padding: 10px 20px; 
+    margin: 5px; 
+    border-radius: 5px; 
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif; 
+    text-transform: uppercase; 
+    transition: background-color 0.3s, transform 0.2s; 
+}
+
+.container button:hover {
+    background-color: var(--primary); 
+    transform: scale(1.05); 
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; 
+    margin-top: 20px; 
+}
+
+.container input[type="text"] {
+    border: 2px solid var(--black); 
+    border-radius: 20px; 
+    padding: 0.5em; 
+    margin-top: 0.5em; 
+    margin-bottom: 0.5em; 
+    width: calc(100% - 1em); 
+    transition: border-color 0.3s ease; 
+}
+
+.container input[type="text"]:hover {
+    border-color: var(--primary); 
+}

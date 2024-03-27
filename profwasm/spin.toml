@@ -1,0 +1,20 @@
+spin_manifest_version = 2
+
+[application]
+name = "profwasm"
+version = "0.1.0"
+authors = ["ripplingadmin"]
+description = "An AI application to help you learn about WebAssembly"
+
+[[trigger.http]]
+route = "/..."
+component = "profwasm"
+
+[component.profwasm]
+source = "target/wasm32-wasi/release/profwasm.wasm"
+allowed_outbound_hosts = []
+ai_models = ["llama2-chat"]
+
+[component.profwasm.build]
+command = "cargo build --target wasm32-wasi --release"
+watch = ["src/**/*.rs", "Cargo.toml"]

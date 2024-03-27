@@ -1,0 +1,16 @@
+WebAssembly can be used as a compilation target for other programming languages, allowing developers to write code in their preferred language and leverage the performance benefits of WebAssembly.
+
+<p><b>Documentation:</b><p>
+
+<a href="https://emscripten.org/">WebAssembly for C/C++</a></p>
+<a href="https://rustwasm.github.io/">WebAssembly for Rust</a></p>
+
+<p><b>Benefits:</b><p>
+
+<b>Reuse existing code:</b> Developers can reuse code written in languages like C, C++, or Rust, rather than rewriting everything in JavaScript or a web-specific language.
+<b>Performance:</b> WebAssembly provides near-native performance for computationally intensive tasks, making it suitable for applications that require high performance, such as games, simulations, or scientific computing.
+<b>Portability:</b> WebAssembly modules can run in various environments, including web browsers, Node.js, and even serverless functions, enabling code reuse across different platforms.
+
+<p><b>Example (Blog post by Ryan Cavanaugh, experienced software engineer):</b><p>
+<blockquote>"With WebAssembly, you can take an existing C or C++ codebase and compile it to run in the browser or on the server. This opens up a world of possibilities for reusing existing libraries and tools that were previously limited to native environments." (<a href="https://www.bytecode.io/blog/webassembly-and-the-future-of-programming">Source</a>)</blockquote>
+

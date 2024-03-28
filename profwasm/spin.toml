@@ -14,6 +14,7 @@ component = "profwasm"
 source = "target/wasm32-wasi/release/profwasm.wasm"
 allowed_outbound_hosts = []
 ai_models = ["llama2-chat"]
+key_value_stores = ["default"]
 
 [component.profwasm.build]
 command = "cargo build --target wasm32-wasi --release"

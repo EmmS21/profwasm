@@ -2,6 +2,10 @@ use serde_json::Value;
 use spin_sdk::{http::{IntoResponse, Method, Request, Response}, http_component, llm::{infer_with_options, InferencingModel::Llama2Chat},};
 use serde::{Deserialize, Serialize};
 
+struct UserInput {
+    userInput: String,
+}
+
 #[http_component]
 async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
     let css = include_str!("../static/style.css");
@@ -72,8 +76,15 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
                     container.appendChild(finalText); 
                 
                 const submitButton = document.getElementById('submitAnswer');
+                const userInputField = document.getElementById('userInput');
                 submitButton.addEventListener('click', () => {
-                    const userInput = document.getElementById('userInput').value;
+                    const userInput = userInputField.value;
+                    submitButton.style.display = 'none';
+                    const pleaseWaitMessage = document.createElement('p');
+                    pleaseWaitMessage.id = 'pleaseWaitMessage';
+                    pleaseWaitMessage.textContent = 'Please Wait...';
+                    userInputField.after(pleaseWaitMessage);
+                
                     fetch('/handle_profwasm', {
                         method: 'POST',
                         headers: {
@@ -88,15 +99,28 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
                         return response.text();
                     })
                     .then(data => {
-                        console.log('Response from server:', data);
+                        pleaseWaitMessage.style.display = 'none';
+                        const percentageMatch = data.match(/Percentage: (\d+)/);
+                        const percentage = percentageMatch ? percentageMatch[1] : "N/A";
+                
+                        userInputField.style.display = 'none';
+                        submitButton.style.display = 'none';
+                        finalText.innerHTML = `<p>Let me score how well you understand this topic:</p>`;
+                
+                        const responseContainer = document.createElement('div');
+                        responseContainer.style.cssText = `
+                            padding: 1em;
+                            margin-top: 20px;
+                            background-color: #f0f0f0;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);`;
+                        responseContainer.textContent = data; 
+                                    
+                        const container = document.querySelector('.container');
+                        container.appendChild(responseContainer);
                     })
-                    .catch(error => {
-                        console.error('Error during POST request:', error);
-                    });
-                });
+                    .catch(error => console.error('Error during POST request:', error));                });
             });
-        
-            
                 showContent(0); 
             });
             
@@ -120,7 +144,6 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
             </html>
             "#);
     
-    
         Ok(Response::builder()
             .status(200)
             .header("content-type", "text/html")
@@ -128,66 +151,52 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
             .build())    
     },
     Method::Post => {
-        println!("Received a POST request");
         let body = req.into_body();
-        let user_input: Value = serde_json::from_slice(&body)?;        
+        let user_input: Value = serde_json::from_slice(&body)?; 
+       
         let text = user_input.get("userInput").and_then(|v| v.as_str()).unwrap_or("");
         const PROMPT: &str = r#"\
         <<SYS>>
-        You are a bot, you will give me a final percentage score out of 100 for my ability to clearly explain what WebAssembly is and it's relevance to cloud compute. I need to show an understanding of VMs, the limitations of VMs, containers and their limitations and clearly articulate what the benefits of WebAssembly are in this context. Respond with a percentage score. Additionally, include a suggestions to improve my understanding.
+        You are a bot, you will only give me a final percentage score out of 100 for my ability to clearly explain what WebAssembly is and it's relevance to cloud compute. Keep you explanation concise, no more than 4 sentences and return a score out of 100 for my understanding.
         <</SYS>>
         <INST>
-        Follow this pattern for responses:
-
-        Percentage:
-        Suggestions:
+        Simply return how I could improve my explanation in no more than 3 lines a final score out of 100
+        User: Here is the explanation in my own words: {SENTENCE}
         </INST>
-
-        User: {SENTENCE}
         "#;
 
-        println!("Text sent to LLAMA: {:?}", text);
-        let infer_result = infer_with_options(
+        let prompt = PROMPT.replace("{SENTENCE}", text);
+
+        let infer_result = match infer_with_options(
             Llama2Chat,
-            &PROMPT.replace("{SENTENCE}", "Testing?"),
+            &prompt,
             spin_sdk::llm::InferencingParams {
-                max_tokens: 8,
+                max_tokens: 256,
                 ..Default::default()
             },
-        )?;
+        ) {
+            Ok(infer_result) => infer_result,
+            Err(err) => {
+                return Ok(Response::builder()
+                    .status(500)
+                    .body("Internal Server Error")
+                    .build());
+            }
+        };
+
         println!("Llama2 response: {:?}", infer_result);
 
         if infer_result.text.is_empty() {
-            // If no response is received, throw an error
             return Err(anyhow::anyhow!("LLAMA response is empty"));
         }
 
+        let response_body = infer_result.text;
+
         return Ok(Response::builder()
         .status(200)
-        .header("content-type", "text/html")
-        .body(infer_result.text)
+        .header("content-type", "application/json")
+        .body(response_body)
         .build());
-
-
-        
-        // let dummy_response_body = "Dummy response";
-        // let dummy_response = Response::builder()
-        //     .status(200)
-        //     .header("content-type", "text/html")
-        //     .body(dummy_response_body)
-        //     .build();
-    
-        // Return the dummy response for debugging purposes
-        // Ok(dummy_response)
-    
-
-        // return 
-        //     Ok(Response::builder()
-        //     .status(200)
-        //     .header("content-type", "text/html")
-        //     .body(serde_json::to_string(&response)?)
-        //     .build());
-        // return Ok(ResponseBuilder::ok().body(response));
     }
     Method::Head => todo!(),
     Method::Post => todo!(),

@@ -1,10 +1,6 @@
 use serde_json::Value;
 use spin_sdk::{http::{IntoResponse, Method, Request, Response}, http_component, llm::{infer_with_options, InferencingModel::Llama2Chat},};
-use serde::{Deserialize, Serialize};
 
-struct UserInput {
-    userInput: String,
-}
 
 #[http_component]
 async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
@@ -69,9 +65,10 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
                     contents.forEach(content => content.style.display = 'none');
                     buttonContainer.style.display = 'none'; 
                     const finalText = document.createElement('div');
+                    finalText.style.minHeight = '200px'
                     finalText.innerHTML = `
                     <p>Explain what WebAssembly is and its relevance to building cloud applications in your own words:</p>
-                    <input type="text" id="userInput" placeholder="Your explanation here..." style="width: 100%; padding: 0.5em; margin-top: 0.5em; margin-bottom: 0.5em;">
+                    <textarea id="userInput" placeholder="Your explanation here..." style="width: 100%; height: 150px; padding: 0.5em; margin-top: 0.5em; margin-bottom: 0.5em;"></textarea>
                     <button id="submitAnswer">Submit</button>`;        
                     container.appendChild(finalText); 
                 
@@ -99,18 +96,15 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
                         return response.text();
                     })
                     .then(data => {
-                        pleaseWaitMessage.style.display = 'none';
-                        const percentageMatch = data.match(/Percentage: (\d+)/);
-                        const percentage = percentageMatch ? percentageMatch[1] : "N/A";
-                
+                        pleaseWaitMessage.style.display = 'none';                
                         userInputField.style.display = 'none';
                         submitButton.style.display = 'none';
-                        finalText.innerHTML = `<p>Let me score how well you understand this topic:</p>`;
-                
+                        finalText.style.display = "none";
+                                        
                         const responseContainer = document.createElement('div');
                         responseContainer.style.cssText = `
                             padding: 1em;
-                            margin-top: 20px;
+                            margin-bottom: 10px;
                             background-color: #f0f0f0;
                             border-radius: 8px;
                             box-shadow: 0 2px 4px rgba(0,0,0,0.1);`;
@@ -157,10 +151,9 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
         let text = user_input.get("userInput").and_then(|v| v.as_str()).unwrap_or("");
         const PROMPT: &str = r#"\
         <<SYS>>
-        You are a bot, you will only give me a final percentage score out of 100 for my ability to clearly explain what WebAssembly is and it's relevance to cloud compute. Keep you explanation concise, no more than 4 sentences and return a score out of 100 for my understanding.
+        Explain how well my response shows an understanding of WebAssembly and it's relevant to cloud computing. Keep your response concise (under 3 sentences). Return a candid evaluation of my understanding, like a mean lecturer with a dark sense of humour.
         <</SYS>>
         <INST>
-        Simply return how I could improve my explanation in no more than 3 lines a final score out of 100
         User: Here is the explanation in my own words: {SENTENCE}
         </INST>
         "#;
@@ -199,7 +192,6 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
         .build());
     }
     Method::Head => todo!(),
-    Method::Post => todo!(),
     Method::Put => todo!(),
     Method::Delete => todo!(),
     Method::Connect => todo!(),

@@ -1,5 +1,8 @@
 use serde_json::Value;
-use spin_sdk::{http::{IntoResponse, Method, Request, Response}, http_component, llm::{infer_with_options, InferencingModel::Llama2Chat},};
+use spin_sdk::{http::{IntoResponse, Method, Request, Response}, http_component, llm::{EmbeddingModel, generate_embeddings, infer_with_options, InferencingModel::Llama2Chat},};
+use std::fs;
+use std::collections::HashMap;
+
 
 
 #[http_component]
@@ -149,16 +152,38 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
         let user_input: Value = serde_json::from_slice(&body)?; 
        
         let text = user_input.get("userInput").and_then(|v| v.as_str()).unwrap_or("");
+
+        let user_embedding = generate_embeddings(
+            EmbeddingModel::Other("all-minilm-l6-v2"),
+            &vec![text.to_string()]
+        )?[0];
+        let store = KeyValueStore::default();
+        let mut best_match = (f32::MAX, "");
+
+        for (key, embedding) in store.scan_prefix("book-"){
+            let distance = user_embedding.cosine_distance(&embedding);
+            if distance < best_match.0 {
+                best_match = (distance, store.get(&key)?.unwrap_or_default());
+            }
+        }
+        
+        let retrieved_text = best_match.1;
+
         const PROMPT: &str = r#"\
         <<SYS>>
         Explain how well my response shows an understanding of WebAssembly and it's relevant to cloud computing. Keep your response concise (under 3 sentences). Return a candid evaluation of my understanding, like a mean lecturer with a dark sense of humour.
         <</SYS>>
         <INST>
         User: Here is the explanation in my own words: {SENTENCE}
+
+        Retrieved relevant context:
+        {RETRIEVED_TEXT}
         </INST>
         "#;
 
-        let prompt = PROMPT.replace("{SENTENCE}", text);
+        let prompt = PROMPT
+            .replace("{SENTENCE}", text)
+            .replace("{RETRIEVED_TEXT}", &retrieved_text);
 
         let infer_result = match infer_with_options(
             Llama2Chat,
@@ -201,3 +226,40 @@ async fn handle_profwasm(req: Request) -> anyhow::Result<impl IntoResponse> {
     Method::Other(_) => todo!(), }
 
     }
+    
+    fn main() -> anyhow::Result<()> {
+        let book_paths = vec![
+            "path/to/book1.txt",
+            "path/to/book2.txt",
+            "path/to/book3.txt",
+            "path/to/book4.txt",
+        ];
+    
+        // One HashMap for embeddings, keyed by book identifier
+        let mut embeddings_store = HashMap::<String, Vec<f32>>::new();
+        // Another HashMap for content, also keyed by book identifier
+        let mut content_store = HashMap::<String, String>::new();
+    
+        for (i, path) in book_paths.iter().enumerate() {
+            let content = fs::read_to_string(path)?;
+            let embeddings_result = generate_embeddings(EmbeddingModel::AllMiniLmL6V2, &[content.clone()])?;
+    
+            // Correctly accessing the `embeddings` field of `EmbeddingsResult`
+            let embeddings_vec = &embeddings_result.embeddings;
+    
+            // Ensure there is at least one embedding to work with
+            if let Some(first_embedding) = embeddings_vec.get(0) {
+                let embedding_key = format!("book-{}", i);
+    
+                // Store the first embedding
+                embeddings_store.insert(embedding_key.clone(), first_embedding.clone());
+    
+                // Store the content using the same key for easy correlation
+                content_store.insert(embedding_key, content);
+            } else {
+                println!("No embeddings found for {}", path);
+            }
+        }
+        Ok(())
+    }
+    
